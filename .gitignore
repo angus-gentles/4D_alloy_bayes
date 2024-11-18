@@ -2,4 +2,5 @@
 *.png
 local/__pycache__
 */*/
+old_intermediate
 *.json
