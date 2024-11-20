@@ -50,7 +50,7 @@ for i in {8..15}; do cd ${arr[i]}
     cd $cur
 done
 wait
-
+procs=16
 for i in {0..15} ; do cd ${arr[i]}
     for k in *.relax.in; do base="${k%.relax.in}" ; done
 	#base="${*%.relax.in}"
@@ -63,3 +63,4 @@ for i in {0..15} ; do cd ${arr[i]}
 	fi
     cd $cur
 done
+wait

@@ -36,7 +36,7 @@ def ind_U_comb(x,y,U_params):
 def write_U_sectionfile(base,x,y):
     with open("./%s.in"%base) as fi0:
         s=fi0.read()
-    U_in=write_Uin(x,y,"../U_base.json",'./U_in.json',write=False)
+    U_in=write_Uin(x,y,"../U_int.json",'./U_in.json',write=False)
     for key in U_in.keys():
         s=re.sub("<%s>"%key,str(U_in[key]),s)
     with open('%s.in'%base,'w') as fi2:

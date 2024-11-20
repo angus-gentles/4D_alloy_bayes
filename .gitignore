@@ -2,5 +2,7 @@
 *.png
 local/__pycache__
 */*/
+intermediate_SR/*
+!intermediate_SR/base_SR.tar
 old_intermediate
 *.json
