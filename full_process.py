@@ -41,7 +41,7 @@ def iteration(Us):
         json.dump(U_new,uo)
     write_U_to_files(U_new)
     #exit(0)
-    out2=subprocess.run(['../local/run_vary.sh'],shell=True)
+    out2=subprocess.run(['../local/run_vary_2.sh >script_out.txt'],shell=True)
     data1=bandgaps_xml_csv()
     delta_E=find_differences(data1,data_don)
     sorted_data_don = data_don[np.lexsort((data_don[:, 0], data_don[:, 1]))]
@@ -125,23 +125,26 @@ def whole_proc():
             else:
                 fo.write(',%s'%key)
         fo.write('\n')
+    print(pbounds)
     BO=BayesianOpt(pbounds)
     iterations=10
     U_register={'GaAs':0,'InAs':0,'GaSb':0,'InSb':0}
     for i in range(iterations):
         length_along=BO.suggest()
-        print(length_along)
+        for key in length_along:
+            length_along[key]=np.round(length_along[key],0)
+        print(i,length_along)
         Us_new={}
         Us_new['GaAs']={'Ga-4p':data_files['GaAs'][int(length_along['GaAs']),0],'As-4p':data_files['GaAs'][int(length_along['GaAs']),1]}
         Us_new['InAs']={'In-5p':data_files['InAs'][int(length_along['InAs']),0],'As-4p':data_files['InAs'][int(length_along['InAs']),1]}
         Us_new['GaSb']={'Ga-4p':data_files['GaSb'][int(length_along['GaSb']),0],'Sb-5p':data_files['GaSb'][int(length_along['GaSb']),1]}
         Us_new['InSb']={'In-5p':data_files['InSb'][int(length_along['InSb']),0],'Sb-5p':data_files['InSb'][int(length_along['InSb']),1]}
         for binary in ['GaAs','InAs','GaSb','InSb']:
-            U_register[binary]=int(length_along[binary])
+            U_register[binary]=int(np.round(length_along[binary],0))
         print(i,U_register)
         loss=iteration(Us_new)
         BO.register_param(U_register,loss)
-        data_all=extract_data(Us_new,loss,'intermediate_SR')
+        data_all=extract_data(U_register,loss,'intermediate_SR')
         with open(data_file,'a') as fo:
             for j,key in enumerate(data_keys):
                 if j==0:
