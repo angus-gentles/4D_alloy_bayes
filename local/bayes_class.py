@@ -38,7 +38,7 @@ class BayesianOpt:
                 self.register_param(inter,self.loss_data[i])
         
     def register_param(self,r,loss):
-        print(r)
+        #print(r)
         if loss>0:
             loss*=-1
         self.optimizer.register(params=r,target=loss)

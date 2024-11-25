@@ -114,7 +114,7 @@ def whole_proc():
     pbounds={}
     for bina in binaries:
         data_files[bina]=np.loadtxt('data_int_%s.csv'%bina,skiprows=1,delimiter=',')[:,0:2]
-        pbounds[bina]=(0,len(data_files[bina]))
+        pbounds[bina]=(0,len(data_files[bina])-1)
     data_file="all_data.csv"
     data_keys=init_keys()
     print(data_keys)
@@ -153,7 +153,70 @@ def whole_proc():
                     fo.write(',%s'%str(data_all[key]))
             fo.write('\n')
 
+def cont_proc():
+    binaries=['GaAs','GaSb','InSb','InAs']
+    data_files={}
+    pbounds={}
+    for bina in binaries:
+        data_files[bina]=np.loadtxt('data_int_%s.csv'%bina,skiprows=1,delimiter=',')[:,0:2]
+        pbounds[bina]=(0,len(data_files[bina])-2)
+    data_file="all_data.csv"
+    data_keys=init_keys()
+    
+    BO=BayesianOpt(pbounds)
+    #must now read the keys 
+    with open(data_file,'r') as fi:
+        line_keys=fi.readline().strip().split(',')
+        print(line_keys)
+        keys1=[]
+        for line in line_keys:
+            #line=line_keys[i]
+            if  line=='InAs' or line=='GaAs' or line=='GaSb' or line=='InSb':
+                keys1.append(line)
+        print(keys1)
+        line='hello'
+        k=0
+        line=fi.readline()
+        while line and len(line)>0:
+            datum=line.strip().split(',')
+            Us={}
+            for i in range(len(keys1)):
+                Us[keys1[i]]=float(datum[i])
+            loss=float(datum[-1])
+            print(Us,loss)
+            BO.register_param(Us,loss)
+            #print(Us)
+            k=1
+            line=fi.readline()
+        print('this_worked')
 
+    iterations=200
+    #exit(0)
+    U_register={'GaAs':0,'InAs':0,'GaSb':0,'InSb':0}
+    for i in range(iterations):
+        length_along=BO.suggest()
+        for key in length_along:
+            length_along[key]=np.round(length_along[key],0)
+        print(i,length_along)
+        Us_new={}
+        Us_new['GaAs']={'Ga-4p':data_files['GaAs'][int(length_along['GaAs']),0],'As-4p':data_files['GaAs'][int(length_along['GaAs']),1]}
+        Us_new['InAs']={'In-5p':data_files['InAs'][int(length_along['InAs']),0],'As-4p':data_files['InAs'][int(length_along['InAs']),1]}
+        Us_new['GaSb']={'Ga-4p':data_files['GaSb'][int(length_along['GaSb']),0],'Sb-5p':data_files['GaSb'][int(length_along['GaSb']),1]}
+        Us_new['InSb']={'In-5p':data_files['InSb'][int(length_along['InSb']),0],'Sb-5p':data_files['InSb'][int(length_along['InSb']),1]}
+        for binary in ['GaAs','InAs','GaSb','InSb']:
+            U_register[binary]=int(np.round(length_along[binary],0))
+        print(i,U_register)
+        loss=iteration(Us_new)
+        BO.register_param(U_register,loss)
+        data_all=extract_data(U_register,loss,'intermediate_SR')
+        with open(data_file,'a') as fo:
+            for j,key in enumerate(data_keys):
+                if j==0:
+                    fo.write(str(data_all[key]))
+                else:
+                    fo.write(',%s'%str(data_all[key]))
+            fo.write('\n')
+'''
 def cont_proc():
     with open('U_0.json','r') as ji:
         Us=json.load(ji)
@@ -218,7 +281,7 @@ def cont_proc():
                 else:
                     fo.write(',%s'%str(data_all[key]))
             fo.write('\n')
-
+'''
 
 if __name__=="__main__":
-    whole_proc()
+    cont_proc()

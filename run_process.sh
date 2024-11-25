@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #SBATCH -J 4Dab
-#SBATCH --output=do_alby.txt
+#SBATCH --output=do_alby1.txt
 #SBATCH -N 2
 #SBATCH --ntasks-per-node=128
 #SBATCH --partition=zen3_0512
