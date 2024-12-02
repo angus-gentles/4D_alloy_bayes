@@ -6,3 +6,4 @@ intermediate_SR/*
 !intermediate_SR/base_SR.tar
 old_intermediate
 *.json
+all_data_2.csv
